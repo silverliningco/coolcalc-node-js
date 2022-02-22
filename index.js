@@ -4,17 +4,11 @@ const https = require('https');
 const path = require('path');
 const fs = require('fs');
 
-
 // create express server 
 const app = express();
 
 // configure CORS
 app.use( cors() );
-
-
-// read and parser the body
-//app.use( express.json() );
-
 
 // routes
 app.use( '/coolcalc/user', require('./endpoints/session_user'));
