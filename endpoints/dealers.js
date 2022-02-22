@@ -5,8 +5,8 @@ const got = require('got');
 
 const api_domain='https://stagingapi.coolcalc.com';
 // Enter your API credentials
-const ClientId = 'DCNE';
-const APIKey = 'letmein';
+const ClientId = '';
+const APIKey = '';
 
 //raw body (this is only necessary for post and put methods)
 var bodyParser = require('body-parser');

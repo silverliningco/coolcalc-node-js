@@ -8,8 +8,8 @@ const got = require('got');
 const APIUrl = "https://stagingapi.coolcalc.com/staging/MJ8Reports/?reportId=";
 
 // Enter your API credentials
-const ClientId = 'DCNE';
-const APIKey = 'letmein';
+const ClientId = '';
+const APIKey = '';
 
 // coolcalcAuthentication returns a Base64 encoded HTTP Basic authentication string.
 const coolcalcAuthentication = function(){
