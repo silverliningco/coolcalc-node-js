@@ -40,7 +40,7 @@ router.get( '*', async(req, res) => {
         res.setHeader('Content-Type', response.headers['content-type']);
         res.setHeader('allow', response.headers['allow']);
         res.setHeader('Access-Control-Expose-Headers', 'Location, Allow');
-        res.jsonp(JSON.parse(response.body));
+        res.jsonp(response.data);
 
     } catch(err){
         res.json({
