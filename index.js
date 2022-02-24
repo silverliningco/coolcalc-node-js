@@ -4,17 +4,11 @@ const https = require('https');
 const path = require('path');
 const fs = require('fs');
 
-
 // create express server 
 const app = express();
 
 // configure CORS
 app.use( cors() );
-
-
-// read and parser the body
-//app.use( express.json() );
-
 
 // routes
 app.use( '/coolcalc/user', require('./endpoints/session_user'));
@@ -31,5 +25,5 @@ const sslServer = https.createServer(
   );
   
   sslServer.listen( 3000, () => {
-    console.log('Servidor corriendo en puerto ' + process.env.PORT );
+    console.log('Secure Server on port 3000');
   });
