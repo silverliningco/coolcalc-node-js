@@ -4,9 +4,10 @@ const router = Router();
 const axios = require('axios');
 
 const api_domain = 'https://stagingapi.coolcalc.com';
+
 // Enter your API credentials
-const ClientId = 'DCNE';
-const APIKey = 'letmein';
+const ClientId = '';
+const APIKey = '';
 
 //raw body (this is only necessary for post and put methods)
 var bodyParser = require('body-parser');
@@ -35,7 +36,13 @@ const coolcalcAuthentication = function () {
  * and the CoolCalc API's response is forwarded unchanged to the browser. 
  */
 router.get('*', async (req, res) => {
+    // To-do:
+    // Implement your own code here to check that the accountNr in the URL /dealers/accountNr/.... 
+    // corresponds to the current user/session info.
+    // This is to prevent some dishonest user from accessing someone else's project list.
+    // ...
 
+    // If the account nr in the REST URL does not correspond to the session user, respond with a 401 "are you trying to hack me" code.
     // Remove URL segments specific to our local entry point.
     const myUrl = req.originalUrl;
     const newURL = myUrl.replace('/coolcalc/client', '');
@@ -52,12 +59,24 @@ router.get('*', async (req, res) => {
         res.setHeader('Access-Control-Expose-Headers', 'Location, Allow');
         res.jsonp(response.data);
 
-    }).catch(e => {
-        res.json({
-            error: e
-        });
+    }).catch(error => {
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            res.setHeader('Content-Type', error.response.headers['content-type']);
+            return res.status(error.response.status).json(error.response.data);
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            res.json({
+                error: error.request
+            });
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message);
+        }
     });
-
 
 });
 
@@ -70,20 +89,33 @@ router.post('*', raw, async (req, res) => {
 
     res.setHeader('Access-Control-Expose-Headers', 'Location, Allow');
 
-    axios.post(`${api_domain}${newURL}`, {
-            headers: {
-                Authorization: `Basic ${coolcalcAuthentication()}`
-            },
-            body: `${req.body}`
-        }).then((doc) => {
-            // Output to the browser.
-            res.setHeader('Content-Type', doc.headers['content-type']);
-            res.setHeader('allow', doc.headers['allow']);
-            res.setHeader('location', doc.headers['location']);
-            return res.status(doc.status).json(response.data)
-        }).catch(e => {
-        res.setHeader('Content-Type', e.response.headers['content-type']);
-        return res.status(e.response.status).json(e.response.data);
+    axios.post(`${api_domain}${newURL}`, req.body, {
+        headers: {
+            Authorization: `Basic ${coolcalcAuthentication()}`
+        }
+    }).then(response => {
+        // Output to the browser.
+        res.setHeader('Content-Type', response.headers['content-type']);
+        res.setHeader('allow', response.headers['allow']);
+        res.setHeader('location', response.headers['location']);
+        return res.status(response.status).json(response.data)
+    }).catch(error => {
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            res.setHeader('Content-Type', error.response.headers['content-type']);
+            return res.status(error.response.status).json(error.response.data);
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            res.json({
+                error: error.request
+            });
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message);
+        }
     });
 });
 
@@ -97,24 +129,34 @@ router.put('*', raw, async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Expose-Headers', 'Location, Allow');
 
-    try {
-        await axios.put(`${api_domain}${newURL}`, {
-            headers: {
-                Authorization: `Basic ${coolcalcAuthentication()}`
-            },
-            body: `${req.body}`
-        }).then((doc) => {
-            // Output to the browser.
-            res.setHeader('Content-Type', doc.headers['content-type']);
-            res.setHeader('allow', doc.headers['allow']);
-            return res.status(doc.status).json(response.data)
-        });
-    } catch (err) {
-        res.setHeader('Content-Type', err.response.headers['content-type']);
-        return res.status(err.response.status).json(err.response.data);
-    }
+    axios.put(`${api_domain}${newURL}`, req.body, {
+        headers: {
+            Authorization: `Basic ${coolcalcAuthentication()}`
+        }
+    }).then((response) => {
+        // Output to the browser.
+        res.setHeader('Content-Type', response.headers['content-type']);
+        res.setHeader('allow', response.headers['allow']);
+        return res.status(response.status).json(response.data)
+    }).catch(error => {
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            res.setHeader('Content-Type', error.response.headers['content-type']);
+            return res.status(error.response.status).json(error.response.data);
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            res.json({
+                error: error.request
+            });
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message);
+        }
+    });
 });
-
 
 router.delete('*', (req, res) => {
 
@@ -123,19 +165,30 @@ router.delete('*', (req, res) => {
     const newURL = myUrl.replace('/coolcalc/client', '');
 
     // Make the request
-    try {
-        axios.delete(`${api_domain}${newURL}`, {
-            headers: {
-                Authorization: `Basic ${coolcalcAuthentication()}`
-            }
-        })
+    axios.delete(`${api_domain}${newURL}`, {
+        headers: {
+            Authorization: `Basic ${coolcalcAuthentication()}`
+        }
+    }).then(response => {
         res.sendStatus(204);
-    }
-    catch (error) {
-        res.setHeader('Content-Type', error.response.headers['content-type']);
-        return res.status(error.response.status).json(error.response.data);
-    }
-
+    }).catch(error => {
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            res.setHeader('Content-Type', error.response.headers['content-type']);
+            return res.status(error.response.status).json(error.response.data);
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            res.json({
+                error: error.request
+            });
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message);
+        }
+    });
 });
 
 module.exports = router;
